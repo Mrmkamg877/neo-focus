@@ -1,22 +1,22 @@
-const CACHE_NAME = 'neo-focus-v1';
+const CACHE_NAME = 'neo-focus-v2';
 const ASSETS = [
   '/',
   '/index.html',
-  '/styles.css',
-  '/script.js',
-  '/icon.png'
+  '/manifest.webmanifest',
+  '/icon-192.png',
+  '/icon-512.png'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(ASSETS))
+      .then(cache => cache.addAll(ASSETS))
   );
 });
 
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request)
-      .then((response) => response || fetch(event.request))
+      .then(response => response || fetch(event.request))
   );
 });
