@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#6C5CE7">
+    <meta name="description" content="Ultra-focus task manager">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>NEO Focus ⚡</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="icon.png" type="image/png">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <style>
+        :root {
+            --primary: #6C5CE7;
+            --secondary: #00CEFF;
+            --dark: #1A1A2E;
+            --light: #F1F1F1;
+            --accent: #FF2E63;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            background: var(--dark);
+            color: var(--light);
+            min-height: 100vh;
+            padding: 20px;
+            display: grid;
+            place-items: center;
+            overflow-x: hidden;
+        }
+        
+        .app {
+            width: 100%;
+            max-width: 420px;
+            background: rgba(26, 26, 46, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* ... (keep all previous CSS styles) ... */
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    
+    <div class="app">
+        <div class="header">
+            <h1>NEO Focus ⚡</h1>
+            <p>Zero in. Crush it. Repeat.</p>
+        </div>
+        
+        <div class="input-group">
+            <input type="text" id="taskInput" placeholder="What's your mission?">
+            <button id="addTaskBtn">+</button>
+        </div>
+        
+        <div class="task-list" id="taskList"></div>
+        
+        <div class="controls">
+            <button class="ctrl-btn" id="focusBtn">Laser Mode 🔥</button>
+            <button class="ctrl-btn" id="clearBtn">Nuke All 💥</button>
+        </div>
+    </div>
+
+    <!-- Install Prompt -->
+    <div id="installPrompt" style="display:none; position:fixed; bottom:20px; left:0; right:0; margin:auto; max-width:400px; background:var(--primary); color:white; padding:15px; border-radius:12px; text-align:center; z-index:1000; box-shadow:0 5px 25px rgba(0,0,0,0.3);">
+        <p>Install NEO Focus for better experience?</p>
+        <div style="display:flex; gap:10px; justify-content:center; margin-top:10px;">
+            <button id="installBtn" style="background:white; color:var(--primary); border:none; padding:8px 20px; border-radius:8px; font-weight:bold; cursor:pointer;">Install</button>
+            <button id="dismissBtn" style="background:transparent; color:white; border:1px solid white; padding:8px 20px; border-radius:8px; cursor:pointer;">Later</button>
+        </div>
+    </div>
+
+    <script>
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => console.log('SW registered'))
+                    .catch(err => console.log('SW registration failed: ', err));
+            });
+        }
+
+        // Install Prompt Logic
+        let deferredPrompt;
+        const installPrompt = document.getElementById('installPrompt');
+        const installBtn = document.getElementById('installBtn');
+        const dismissBtn = document.getElementById('dismissBtn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            setTimeout(() => {
+                installPrompt.style.display = 'block';
+            }, 3000);
+        });
+
+        installBtn.addEventListener('click', () => {
+            installPrompt.style.display = 'none';
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then(choiceResult => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('User accepted install');
+                }
+                deferredPrompt = null;
+            });
+        });
+
+        dismissBtn.addEventListener('click', () => {
+            installPrompt.style.display = 'none';
+        });
+
+        // ... (keep all previous JavaScript code) ...
+    </script>
+
+    <!-- Web App Manifest -->
+    <script type="application/ld+json">
+    {
+        "name": "NEO Focus",
+        "short_name": "NEO Focus",
+        "description": "Ultra-focus task manager",
+        "start_url": "/",
+        "display": "standalone",
+        "background_color": "#1A1A2E",
+        "theme_color": "#6C5CE7",
+        "icons": [
+            {
+                "src": "icon-192.png",
+                "sizes": "192x192",
+                "type": "image/png"
+            },
+            {
+                "src": "icon-512.png",
+                "sizes": "512x512",
+                "type": "image/png"
+            }
+        ]
+    }
+    </script>
+</body>
+</html>
