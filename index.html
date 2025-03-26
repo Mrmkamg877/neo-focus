@@ -247,10 +247,9 @@
             });
         });
 
-        // Fixed Service Worker Registration
+        // Robust Service Worker Registration
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                // Changed to relative path to avoid 404 errors
                 navigator.serviceWorker.register('./sw.js')
                     .then(registration => {
                         console.log('ServiceWorker registration successful with scope:', registration.scope);
