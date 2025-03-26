@@ -32,7 +32,7 @@
         
         .app {
             max-width: 420px;
-            margin: 0 auto 80px;
+            margin: 0 auto;
             background: rgba(26, 26, 46, 0.8);
             backdrop-filter: blur(10px);
             border-radius: 24px;
@@ -59,6 +59,21 @@
         .header p {
             color: rgba(255, 255, 255, 0.7);
             font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        
+        #installBtn {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+            max-width: 200px;
+            margin: 0 auto;
+            display: block;
         }
         
         .input-group {
@@ -153,39 +168,6 @@
             background: linear-gradient(45deg, var(--primary), var(--secondary));
             color: white;
         }
-        
-        .bottom-nav {
-            position: fixed;
-            bottom: 20px;
-            left: 0;
-            right: 0;
-            text-align: center;
-            background: rgba(26, 26, 46, 0.9);
-            backdrop-filter: blur(10px);
-            padding: 10px 20px;
-            z-index: 100;
-            display: block;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            pointer-events: none;
-        }
-        
-        .bottom-nav.visible {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        
-        #installBtn {
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: 600;
-            width: 100%;
-            max-width: 200px;
-        }
     </style>
 </head>
 <body>
@@ -193,6 +175,7 @@
         <div class="header">
             <h1>NEO Focus ⚡</h1>
             <p>Zero in. Crush it. Repeat.</p>
+            <button id="installBtn">📲 Install App</button>
         </div>
         
         <div class="input-group">
@@ -208,10 +191,6 @@
         </div>
     </div>
 
-    <div class="bottom-nav" id="bottomNav">
-        <button id="installBtn">📲 Install App</button>
-    </div>
-
     <script>
         let tasks = [];
         let isFocusMode = false;
@@ -224,7 +203,6 @@
             const focusBtn = document.getElementById('focusBtn');
             const clearBtn = document.getElementById('clearBtn');
             const installBtn = document.getElementById('installBtn');
-            const bottomNav = document.getElementById('bottomNav');
 
             // Task functionality
             addTaskBtn.addEventListener('click', () => {
@@ -287,7 +265,7 @@
             window.addEventListener('beforeinstallprompt', (e) => {
                 e.preventDefault();
                 deferredPrompt = e;
-                bottomNav.classList.add('visible');
+                installBtn.style.display = 'block';
             });
 
             installBtn.addEventListener('click', async () => {
@@ -296,7 +274,6 @@
                     const { outcome } = await deferredPrompt.userChoice;
                     if (outcome === 'accepted') {
                         installBtn.textContent = '✓ Installed';
-                        setTimeout(() => bottomNav.classList.remove('visible'), 2000);
                     }
                     deferredPrompt = null;
                 }
@@ -304,7 +281,7 @@
 
             // Hide install button if already installed
             window.addEventListener('appinstalled', () => {
-                bottomNav.classList.remove('visible');
+                installBtn.textContent = '✓ Installed';
             });
         });
     </script>
