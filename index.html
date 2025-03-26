@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#6C5CE7">
     <title>NEO Focus ⚡</title>
+    <link rel="manifest" href="manifest.webmanifest">
     <style>
         :root {
             --primary: #6C5CE7;
@@ -59,26 +60,6 @@
         .header p {
             color: rgba(255, 255, 255, 0.7);
             font-size: 0.9rem;
-            margin-bottom: 15px;
-        }
-        
-        #installBtn {
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: 600;
-            width: 100%;
-            max-width: 200px;
-            margin: 0 auto;
-            display: block;
-            transition: all 0.3s ease;
-        }
-        
-        #installBtn:hover {
-            transform: scale(1.05);
         }
         
         .input-group {
@@ -180,7 +161,6 @@
         <div class="header">
             <h1>NEO Focus ⚡</h1>
             <p>Zero in. Crush it. Repeat.</p>
-            <button id="installBtn">📲 Install App</button>
         </div>
         
         <div class="input-group">
@@ -197,37 +177,30 @@
     </div>
 
     <script>
+        // Task Manager Logic
         let tasks = [];
         let isFocusMode = false;
-        let deferredPrompt;
 
-        // Initialize the app
-        function initApp() {
+        document.addEventListener('DOMContentLoaded', () => {
             const taskInput = document.getElementById('taskInput');
             const addTaskBtn = document.getElementById('addTaskBtn');
             const taskList = document.getElementById('taskList');
             const focusBtn = document.getElementById('focusBtn');
             const clearBtn = document.getElementById('clearBtn');
-            const installBtn = document.getElementById('installBtn');
 
-            // Task functionality
-            addTaskBtn.addEventListener('click', addNewTask);
-            taskInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') addNewTask();
-            });
-
-            function addNewTask() {
+            // Add task
+            addTaskBtn.addEventListener('click', () => {
                 const text = taskInput.value.trim();
                 if (text) {
-                    tasks.push({ 
-                        id: Date.now(), 
-                        text, 
-                        completed: false 
-                    });
+                    tasks.push({ id: Date.now(), text, completed: false });
                     taskInput.value = '';
                     renderTasks();
                 }
-            }
+            });
+
+            taskInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addTaskBtn.click();
+            });
 
             function renderTasks() {
                 taskList.innerHTML = tasks.map(task => `
@@ -239,7 +212,6 @@
                     </div>
                 `).join('');
 
-                // Add event listeners to new elements
                 document.querySelectorAll('.delete-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         tasks = tasks.filter(t => t.id !== parseInt(btn.dataset.id));
@@ -249,8 +221,7 @@
 
                 document.querySelectorAll('.task').forEach(task => {
                     task.addEventListener('click', () => {
-                        const taskId = parseInt(task.querySelector('.delete-btn').dataset.id);
-                        const taskObj = tasks.find(t => t.id === taskId);
+                        const taskObj = tasks.find(t => t.id === parseInt(task.querySelector('.delete-btn').dataset.id));
                         taskObj.completed = !taskObj.completed;
                         task.classList.toggle('completed');
                     });
@@ -258,75 +229,43 @@
             }
 
             // Focus mode
-            focusBtn.addEventListener('click', toggleFocusMode);
-
-            function toggleFocusMode() {
+            focusBtn.addEventListener('click', () => {
                 isFocusMode = !isFocusMode;
                 document.querySelectorAll('.task').forEach((task, index) => {
                     task.style.display = isFocusMode && index !== 0 ? 'none' : 'flex';
                 });
                 focusBtn.textContent = isFocusMode ? 'Show All 👁️' : 'Laser Mode 🔥';
-            }
+            });
 
             // Clear all
-            clearBtn.addEventListener('click', clearAllTasks);
-
-            function clearAllTasks() {
+            clearBtn.addEventListener('click', () => {
                 tasks = [];
                 renderTasks();
                 isFocusMode = false;
                 focusBtn.textContent = 'Laser Mode 🔥';
-            }
+            });
+        });
 
-            // PWA installation
-            window.addEventListener('beforeinstallprompt', handleInstallPrompt);
-            installBtn.addEventListener('click', triggerInstall);
-            window.addEventListener('appinstalled', handleAppInstalled);
+        // PWA Installation - Let browser handle the install prompt
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent the default prompt
+            e.preventDefault();
+            // The browser will now show its native install option in the menu
+            console.log('PWA installable - browser will show install option');
+        });
 
-            function handleInstallPrompt(e) {
-                // Prevent the mini-infobar from appearing on mobile
-                e.preventDefault();
-                // Stash the event so it can be triggered later
-                deferredPrompt = e;
-                // Show the install button
-                installBtn.style.display = 'block';
-                // Optionally, send analytics event that PWA install promo was shown
-                console.log('PWA install prompt available');
-            }
-
-            function triggerInstall() {
-                if (!deferredPrompt) {
-                    console.log('No install prompt available');
-                    return;
-                }
-                // Show the install prompt
-                deferredPrompt.prompt();
-                // Wait for the user to respond to the prompt
-                deferredPrompt.userChoice.then(handleInstallChoice);
-            }
-
-            function handleInstallChoice(choiceResult) {
-                if (choiceResult.outcome === 'accepted') {
-                    console.log('User accepted the install prompt');
-                    installBtn.textContent = '✓ Installed';
-                    installBtn.style.background = 'var(--secondary)';
-                } else {
-                    console.log('User dismissed the install prompt');
-                }
-                // We've used the prompt, and can't use it again, throw it away
-                deferredPrompt = null;
-            }
-
-            function handleAppInstalled() {
-                console.log('PWA was installed');
-                installBtn.textContent = '✓ Installed';
-                installBtn.style.background = 'var(--secondary)';
-                installBtn.onclick = null; // Remove click handler after install
-            }
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
         }
-
-        // Start the app when DOM is loaded
-        document.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
 </html>
