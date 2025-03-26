@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#1A1A2E">
-    <meta name="description" content="NEO Focus: A minimalist task manager PWA for laser-focused productivity. Manage tasks one-at-a-time with distraction-free interface.">
+    <meta name="description" content="NEO Focus: A minimalist task manager PWA for laser-focused productivity">
     <title>NEO Focus ⚡</title>
     <link rel="manifest" href="manifest.webmanifest">
     <style>
@@ -247,15 +247,16 @@
             });
         });
 
-        // Service Worker Registration
+        // Fixed Service Worker Registration
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
+                // Changed to relative path to avoid 404 errors
+                navigator.serviceWorker.register('./sw.js')
                     .then(registration => {
-                        console.log('ServiceWorker registration successful');
+                        console.log('ServiceWorker registration successful with scope:', registration.scope);
                     })
                     .catch(err => {
-                        console.log('ServiceWorker registration failed: ', err);
+                        console.error('ServiceWorker registration failed:', err);
                     });
             });
         }
