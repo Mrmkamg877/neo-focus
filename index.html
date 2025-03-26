@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#1A1A2E">
+    <meta name="description" content="NEO Focus: A minimalist task manager PWA for laser-focused productivity. Manage tasks one-at-a-time with distraction-free interface.">
     <title>NEO Focus ⚡</title>
     <link rel="manifest" href="manifest.webmanifest">
     <style>
@@ -246,23 +247,15 @@
             });
         });
 
-        // PWA Installation - Let browser handle the install prompt
-        window.addEventListener('beforeinstallprompt', (e) => {
-            // Prevent the default prompt
-            e.preventDefault();
-            // The browser will now show its native install option in the menu
-            console.log('PWA installable - browser will show install option');
-        });
-
         // Service Worker Registration
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
                     .then(registration => {
-                        console.log('ServiceWorker registered');
+                        console.log('ServiceWorker registration successful');
                     })
                     .catch(err => {
-                        console.error('ServiceWorker registration failed:', err);
+                        console.log('ServiceWorker registration failed: ', err);
                     });
             });
         }
