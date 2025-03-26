@@ -155,17 +155,23 @@
         }
         
         .bottom-nav {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(26, 26, 46, 0.9);
-            backdrop-filter: blur(10px);
-            padding: 10px 20px;
-            border-radius: 50px;
-            display: none;
-            z-index: 100;
-        }
+    position: fixed;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    background: rgba(26, 26, 46, 0.9);
+    backdrop-filter: blur(10px);
+    padding: 10px 20px;
+    z-index: 100;
+    display: block; /* Changed from 'none' to 'block' */
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.bottom-nav.visible {
+    opacity: 1;
+}
         
         #installBtn {
             background: linear-gradient(45deg, var(--primary), var(--secondary));
@@ -274,23 +280,28 @@
             });
 
             // PWA installation
-            window.addEventListener('beforeinstallprompt', (e) => {
-                e.preventDefault();
-                deferredPrompt = e;
-                bottomNav.style.display = 'block';
-            });
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    bottomNav.classList.add('visible');
+});
 
-            installBtn.addEventListener('click', async () => {
-                if (deferredPrompt) {
-                    deferredPrompt.prompt();
-                    const { outcome } = await deferredPrompt.userChoice;
-                    if (outcome === 'accepted') {
-                        installBtn.textContent = '✓ Installed';
-                        setTimeout(() => bottomNav.style.display = 'none', 2000);
-                    }
-                    deferredPrompt = null;
-                }
-            });
+installBtn.addEventListener('click', async () => {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+            installBtn.textContent = '✓ Installed';
+            setTimeout(() => bottomNav.classList.remove('visible'), 2000);
+        }
+        deferredPrompt = null;
+    }
+});
+
+// Hide install button if already installed
+window.addEventListener('appinstalled', () => {
+    bottomNav.classList.remove('visible');
+});
         });
     </script>
 </body>
