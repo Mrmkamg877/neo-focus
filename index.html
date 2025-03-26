@@ -74,6 +74,11 @@
             max-width: 200px;
             margin: 0 auto;
             display: block;
+            transition: all 0.3s ease;
+        }
+        
+        #installBtn:hover {
+            transform: scale(1.05);
         }
         
         .input-group {
@@ -196,7 +201,8 @@
         let isFocusMode = false;
         let deferredPrompt;
 
-        document.addEventListener('DOMContentLoaded', () => {
+        // Initialize the app
+        function initApp() {
             const taskInput = document.getElementById('taskInput');
             const addTaskBtn = document.getElementById('addTaskBtn');
             const taskList = document.getElementById('taskList');
@@ -205,18 +211,23 @@
             const installBtn = document.getElementById('installBtn');
 
             // Task functionality
-            addTaskBtn.addEventListener('click', () => {
+            addTaskBtn.addEventListener('click', addNewTask);
+            taskInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addNewTask();
+            });
+
+            function addNewTask() {
                 const text = taskInput.value.trim();
                 if (text) {
-                    tasks.push({ id: Date.now(), text, completed: false });
+                    tasks.push({ 
+                        id: Date.now(), 
+                        text, 
+                        completed: false 
+                    });
                     taskInput.value = '';
                     renderTasks();
                 }
-            });
-
-            taskInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') addTaskBtn.click();
-            });
+            }
 
             function renderTasks() {
                 taskList.innerHTML = tasks.map(task => `
@@ -228,6 +239,7 @@
                     </div>
                 `).join('');
 
+                // Add event listeners to new elements
                 document.querySelectorAll('.delete-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         tasks = tasks.filter(t => t.id !== parseInt(btn.dataset.id));
@@ -237,7 +249,8 @@
 
                 document.querySelectorAll('.task').forEach(task => {
                     task.addEventListener('click', () => {
-                        const taskObj = tasks.find(t => t.id === parseInt(task.querySelector('.delete-btn').dataset.id));
+                        const taskId = parseInt(task.querySelector('.delete-btn').dataset.id);
+                        const taskObj = tasks.find(t => t.id === taskId);
                         taskObj.completed = !taskObj.completed;
                         task.classList.toggle('completed');
                     });
@@ -245,45 +258,75 @@
             }
 
             // Focus mode
-            focusBtn.addEventListener('click', () => {
+            focusBtn.addEventListener('click', toggleFocusMode);
+
+            function toggleFocusMode() {
                 isFocusMode = !isFocusMode;
                 document.querySelectorAll('.task').forEach((task, index) => {
                     task.style.display = isFocusMode && index !== 0 ? 'none' : 'flex';
                 });
                 focusBtn.textContent = isFocusMode ? 'Show All 👁️' : 'Laser Mode 🔥';
-            });
+            }
 
             // Clear all
-            clearBtn.addEventListener('click', () => {
+            clearBtn.addEventListener('click', clearAllTasks);
+
+            function clearAllTasks() {
                 tasks = [];
                 renderTasks();
                 isFocusMode = false;
                 focusBtn.textContent = 'Laser Mode 🔥';
-            });
+            }
 
             // PWA installation
-            window.addEventListener('beforeinstallprompt', (e) => {
+            window.addEventListener('beforeinstallprompt', handleInstallPrompt);
+            installBtn.addEventListener('click', triggerInstall);
+            window.addEventListener('appinstalled', handleAppInstalled);
+
+            function handleInstallPrompt(e) {
+                // Prevent the mini-infobar from appearing on mobile
                 e.preventDefault();
+                // Stash the event so it can be triggered later
                 deferredPrompt = e;
+                // Show the install button
                 installBtn.style.display = 'block';
-            });
+                // Optionally, send analytics event that PWA install promo was shown
+                console.log('PWA install prompt available');
+            }
 
-            installBtn.addEventListener('click', async () => {
-                if (deferredPrompt) {
-                    deferredPrompt.prompt();
-                    const { outcome } = await deferredPrompt.userChoice;
-                    if (outcome === 'accepted') {
-                        installBtn.textContent = '✓ Installed';
-                    }
-                    deferredPrompt = null;
+            function triggerInstall() {
+                if (!deferredPrompt) {
+                    console.log('No install prompt available');
+                    return;
                 }
-            });
+                // Show the install prompt
+                deferredPrompt.prompt();
+                // Wait for the user to respond to the prompt
+                deferredPrompt.userChoice.then(handleInstallChoice);
+            }
 
-            // Hide install button if already installed
-            window.addEventListener('appinstalled', () => {
+            function handleInstallChoice(choiceResult) {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('User accepted the install prompt');
+                    installBtn.textContent = '✓ Installed';
+                    installBtn.style.background = 'var(--secondary)';
+                } else {
+                    console.log('User dismissed the install prompt');
+                }
+                // We've used the prompt, and can't use it again, throw it away
+                deferredPrompt = null;
+            }
+
+            function handleAppInstalled() {
+                console.log('PWA was installed');
                 installBtn.textContent = '✓ Installed';
-            });
-        });
+                installBtn.style.background = 'var(--secondary)';
+                installBtn.onclick = null; // Remove click handler after install
+            }
+        }
+
+        // Start the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
 </html>
