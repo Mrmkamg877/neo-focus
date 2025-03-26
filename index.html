@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#6C5CE7">
     <title>NEO Focus ⚡</title>
-    <link rel="manifest" href="/manifest.json">
-    <link rel="icon" href="/icon-192.png">
     <style>
         :root {
             --primary: #6C5CE7;
@@ -15,100 +13,285 @@
             --light: #F1F1F1;
             --accent: #FF2E63;
         }
-
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
         body {
             background: var(--dark);
             color: var(--light);
-            margin: 0;
-            font-family: 'Segoe UI', system-ui;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
         }
-
-        /* Add all previous CSS styles here */
         
-        /* Install Button Styles */
-        #installContainer {
+        .app {
+            max-width: 420px;
+            margin: 0 auto 80px;
+            background: rgba(26, 26, 46, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.2rem;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 8px;
+            font-weight: 800;
+        }
+        
+        .header p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+        
+        .input-group {
+            display: flex;
+            margin-bottom: 25px;
+            position: relative;
+        }
+        
+        #taskInput {
+            flex: 1;
+            padding: 16px 20px;
+            border: none;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+        
+        #taskInput:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--primary);
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        #addTaskBtn {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            bottom: 5px;
+            width: 45px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        
+        .task-list {
+            max-height: 50vh;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) transparent;
+        }
+        
+        .task {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 18px 20px;
+            margin-bottom: 12px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .task.completed {
+            opacity: 0.6;
+            text-decoration: line-through;
+        }
+        
+        .task-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 8px;
+        }
+        
+        .delete-btn {
+            background: rgba(255, 46, 99, 0.2);
+            color: var(--accent);
+            border: none;
+            padding: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+        }
+        
+        .bottom-nav {
             position: fixed;
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(26, 26, 46, 0.9);
             backdrop-filter: blur(10px);
-            padding: 12px 25px;
-            border-radius: 25px;
+            padding: 10px 20px;
+            border-radius: 50px;
             display: none;
-            z-index: 1000;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 100;
         }
-
+        
         #installBtn {
             background: linear-gradient(45deg, var(--primary), var(--secondary));
             color: white;
             border: none;
             padding: 12px 25px;
-            border-radius: 20px;
-            font-weight: 600;
+            border-radius: 25px;
             cursor: pointer;
+            font-weight: 600;
         }
     </style>
 </head>
 <body>
-    <!-- Your existing app content -->
-    
-    <!-- Install Button Container -->
-    <div id="installContainer">
+    <div class="app">
+        <div class="header">
+            <h1>NEO Focus ⚡</h1>
+            <p>Zero in. Crush it. Repeat.</p>
+        </div>
+        
+        <div class="input-group">
+            <input type="text" id="taskInput" placeholder="What's your mission?">
+            <button id="addTaskBtn">+</button>
+        </div>
+        
+        <div class="task-list" id="taskList"></div>
+        
+        <div class="controls">
+            <button class="action-btn" id="focusBtn">Laser Mode 🔥</button>
+            <button class="action-btn" id="clearBtn">Clear All 💥</button>
+        </div>
+    </div>
+
+    <div class="bottom-nav" id="bottomNav">
         <button id="installBtn">📲 Install App</button>
     </div>
 
     <script>
-        // Service Worker Registration
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(reg => console.log('SW registered'))
-                    .catch(err => console.log('SW registration failed:', err));
-            });
-        }
-
-        // Install Prompt Logic
+        let tasks = [];
+        let isFocusMode = false;
         let deferredPrompt;
-        const installContainer = document.getElementById('installContainer');
-        const installBtn = document.getElementById('installBtn');
 
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            installContainer.style.display = 'block';
-            
-            // Automatically show after 5 seconds if not dismissed
-            setTimeout(() => {
-                if (deferredPrompt) {
-                    installContainer.style.opacity = '1';
+        document.addEventListener('DOMContentLoaded', () => {
+            const taskInput = document.getElementById('taskInput');
+            const addTaskBtn = document.getElementById('addTaskBtn');
+            const taskList = document.getElementById('taskList');
+            const focusBtn = document.getElementById('focusBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const installBtn = document.getElementById('installBtn');
+            const bottomNav = document.getElementById('bottomNav');
+
+            // Task functionality
+            addTaskBtn.addEventListener('click', () => {
+                const text = taskInput.value.trim();
+                if (text) {
+                    tasks.push({ id: Date.now(), text, completed: false });
+                    taskInput.value = '';
+                    renderTasks();
                 }
-            }, 5000);
-        });
+            });
 
-        installBtn.addEventListener('click', async () => {
-            if (!deferredPrompt) return;
-            
-            installBtn.textContent = 'Installing...';
-            deferredPrompt.prompt();
-            
-            const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') {
-                installBtn.textContent = '✓ Installed!';
-                setTimeout(() => installContainer.style.display = 'none', 2000);
-            } else {
-                installBtn.textContent = '📲 Install App';
+            taskInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addTaskBtn.click();
+            });
+
+            function renderTasks() {
+                taskList.innerHTML = tasks.map(task => `
+                    <div class="task ${task.completed ? 'completed' : ''}">
+                        <span>${task.text}</span>
+                        <div class="task-actions">
+                            <button class="delete-btn" data-id="${task.id}">✕</button>
+                        </div>
+                    </div>
+                `).join('');
+
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        tasks = tasks.filter(t => t.id !== parseInt(btn.dataset.id));
+                        renderTasks();
+                    });
+                });
+
+                document.querySelectorAll('.task').forEach(task => {
+                    task.addEventListener('click', () => {
+                        const taskObj = tasks.find(t => t.id === parseInt(task.querySelector('.delete-btn').dataset.id));
+                        taskObj.completed = !taskObj.completed;
+                        task.classList.toggle('completed');
+                    });
+                });
             }
-            deferredPrompt = null;
-        });
 
-        // Hide install button if already installed
-        window.addEventListener('appinstalled', () => {
-            installContainer.style.display = 'none';
-        });
+            // Focus mode
+            focusBtn.addEventListener('click', () => {
+                isFocusMode = !isFocusMode;
+                document.querySelectorAll('.task').forEach((task, index) => {
+                    task.style.display = isFocusMode && index !== 0 ? 'none' : 'flex';
+                });
+                focusBtn.textContent = isFocusMode ? 'Show All 👁️' : 'Laser Mode 🔥';
+            });
 
-        // Add your existing task manager JS here
+            // Clear all
+            clearBtn.addEventListener('click', () => {
+                tasks = [];
+                renderTasks();
+                isFocusMode = false;
+                focusBtn.textContent = 'Laser Mode 🔥';
+            });
+
+            // PWA installation
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                bottomNav.style.display = 'block';
+            });
+
+            installBtn.addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    if (outcome === 'accepted') {
+                        installBtn.textContent = '✓ Installed';
+                        setTimeout(() => bottomNav.style.display = 'none', 2000);
+                    }
+                    deferredPrompt = null;
+                }
+            });
+        });
     </script>
 </body>
 </html>
